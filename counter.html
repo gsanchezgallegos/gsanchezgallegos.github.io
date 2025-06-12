@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Widget</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+        .countdown-container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        .countdown-title {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="countdown-container">
+        <!-- <h2 class="countdown-title">Our Special Day Countdown</h2> -->
+        <!-- TickCounter Widget -->
+        <div style="display: block; width: 100%; margin: 0 auto;">
+            <script>
+                (function(d, s, id) {
+                    var js, pjs = d.getElementsByTagName(s)[0];
+                    if (d.getElementById(id)) return;
+                    js = d.createElement(s);
+                    js.id = id;
+                    js.src = "//www.tickcounter.com/static/js/loader.js";
+                    pjs.parentNode.insertBefore(js, pjs);
+                }(document, "script", "tickcounter-sdk"));
+            </script>
+            <a data-type="countdown" 
+               data-id="7466426" 
+               class="tickcounter" 
+               style="display: block; width: 100%; height: 50px; position: relative; padding-bottom: 0; margin: 0 auto;" 
+               title="Faltan:" 
+               href="//www.tickcounter.com/">Faltan:</a>
+        </div>
+    </div>
+</body>
+</html>

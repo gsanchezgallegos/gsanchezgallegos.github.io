@@ -1,5 +1,17 @@
 <!DOCTYPE html>
 <html>
+    <head>
+    <style>
+        /* Hide the YouTube player visually */
+        #player {
+            opacity: 0;
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+    </style>
+</head>
 <body>
     <!-- 1. Placeholder for the player -->
     <div id="player"></div>
@@ -33,7 +45,8 @@
             });
             
             // Optional: Auto-attempt unmute (may fail)
-            setTimeout(() => event.target.unMute(), 2000);
+            setTimeout(() => event.target.unMute(), 0);
+            //setTimeout(() => event.target.unMute(), 2000);
         }
     </script>
 </body>

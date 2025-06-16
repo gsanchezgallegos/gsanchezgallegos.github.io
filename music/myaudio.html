@@ -3,61 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Player</title>
+    <title>Background Audio</title>
     <style>
         body {
             margin: 0;
             padding: 0;
             background: transparent;
             overflow: hidden;
+            height: 100vh;
         }
-        /* Hide all elements except audio (optional) */
+        #playButton {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            padding: 8px 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 1000;
+            opacity: 0.7;
+            font-size: 12px;
+        }
+        #playButton:hover {
+            opacity: 1;
+        }
         .hidden {
             display: none;
         }
     </style>
 </head>
 <body>
-    <!-- Audio element with loop and autoplay -->
+    <!-- Audio element with loop -->
     <audio id="audioPlayer" loop>
         <source src="wide-awake-katy-perry.mp3" type="audio/mp3">
-        Your browser does not support the audio element.
     </audio>
 
+    <!-- Fallback play button (hidden initially) -->
+    <button id="playButton" class="hidden">Play Background Audio</button>
+
     <script>
-        // Get the audio element
         const audio = document.getElementById('audioPlayer');
-        
-        // Function to handle audio play with fallbacks
-        function playAudio() {
+        const playButton = document.getElementById('playButton');
+        let audioStarted = false;
+
+        // Try to play audio automatically
+        function attemptAutoplay() {
+            if (audioStarted) return;
+            
             const playPromise = audio.play();
             
             if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    // Autoplay was prevented - show a hidden play button
-                    const btn = document.createElement('button');
-                    btn.textContent = 'Play Audio';
-                    btn.style.position = 'fixed';
-                    btn.style.top = '10px';
-                    btn.style.left = '10px';
-                    btn.style.zIndex = '1000';
-                    btn.onclick = () => {
-                        audio.play();
-                        btn.remove();
-                    };
-                    document.body.appendChild(btn);
+                playPromise.then(() => {
+                    audioStarted = true;
+                }).catch(error => {
+                    showPlayButton();
                 });
             }
         }
 
-        // Try to play immediately when page loads
-        document.addEventListener('DOMContentLoaded', playAudio);
-        
-        // Also try to play when window gains focus (for mobile devices)
-        window.addEventListener('focus', playAudio);
-        
-        // Some browsers require interaction first - this helps when iframe is clicked
-        document.addEventListener('click', playAudio, { once: true });
+        // Show play button when autoplay fails
+        function showPlayButton() {
+            playButton.classList.remove('hidden');
+        }
+
+        // Play audio and hide button
+        function playAudio() {
+            audio.play()
+                .then(() => {
+                    audioStarted = true;
+                    playButton.classList.add('hidden');
+                })
+                .catch(e => {
+                    playButton.textContent = 'Click to Enable Audio';
+                });
+        }
+
+        // Scroll detection
+        let scrollTimeout;
+        function handleScroll() {
+            if (!audioStarted) {
+                attemptAutoplay();
+            }
+            
+            // Clear any existing timeout
+            clearTimeout(scrollTimeout);
+            
+            // Set a new timeout
+            scrollTimeout = setTimeout(() => {
+                if (!audioStarted) {
+                    playButton.classList.remove('hidden');
+                }
+            }, 3000);
+        }
+
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            // Try autoplay immediately
+            attemptAutoplay();
+            
+            // Set up scroll listener
+            window.addEventListener('scroll', handleScroll);
+            window.addEventListener('touchmove', handleScroll); // For mobile
+            
+            // Set up click listener for the button
+            playButton.addEventListener('click', playAudio);
+            
+            // Also try to play when the page gets clicked anywhere
+            document.addEventListener('click', () => {
+                if (!audioStarted) {
+                    attemptAutoplay();
+                }
+            }, { once: true });
+        });
     </script>
 </body>
 </html>

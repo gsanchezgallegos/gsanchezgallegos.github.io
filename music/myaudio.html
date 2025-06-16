@@ -3,71 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wedding Audio Player</title>
+    <title>Wedding Music Player</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             margin: 0;
+            padding: 0;
             background-color: #f0f5f9;
-            background-image: radial-gradient(circle at 10% 20%, rgba(255,255,255,0.8) 0%, transparent 20%);
-        }
-        .player-container {
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
-            position: relative;
             overflow: hidden;
+            position: relative;
+            height: 100vh;
         }
-        .player-container::before {
-            content: "";
+        .hidden-clicker {
             position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            height: 8px;
-            background: linear-gradient(90deg, #a68332, #d4af37, #a68332);
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            z-index: 1000;
+            cursor: default;
         }
-        h2 {
+        .content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
             color: #a68332;
-            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
             margin-bottom: 10px;
+            font-family: 'Playfair Display', serif;
         }
-        #playBtn {
-            background-color: #a68332;
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            font-size: 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin: 25px 0 15px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(166, 131, 50, 0.3);
-        }
-        #playBtn:hover {
-            background-color: #b78d3a;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(166, 131, 50, 0.4);
-        }
-        .status {
-            margin-top: 20px;
+        p {
             color: #6c757d;
-            font-style: italic;
-            min-height: 24px;
+            max-width: 500px;
+            margin-bottom: 30px;
         }
         .floral {
             position: absolute;
             opacity: 0.1;
             font-size: 3rem;
-            z-index: 0;
         }
         .floral-1 {
             top: 20px;
@@ -82,64 +62,94 @@
     </style>
 </head>
 <body>
-    <div class="player-container">
+    <!-- Transparent overlay for auto-click -->
+    <div class="hidden-clicker" id="clicker"></div>
+
+    <!-- Main content -->
+    <div class="content">
         <div class="floral floral-1">❀</div>
         <div class="floral floral-2">❀</div>
         
-        <h2>Wedding Music Player</h2>
-        <p>Click below to play our special song</p>
-        
-        <button id="playBtn">Play Music</button>
-        <div class="status" id="status"></div>
-        
-        <!-- Audio element with your Google Drive file -->
-        <audio id="audioPlayer" loop>
-            <source src="https://gsanchezgallegos.github.io/music/wide-awake-katy-perry.mp3" type="audio/mpeg">
-            Your browser does not support the audio element.
-        </audio>
+        <h1>Nuestra Boda</h1>
+        <p>La música comenzará automáticamente</p>
     </div>
+
+    <!-- Audio element -->
+    <audio id="audioPlayer" loop>
+        <source src="https://gsanchezgallegos.github.io/music/wide-awake-katy-perry.mp3" type="audio/mpeg">
+    </audio>
 
     <script>
         const audioPlayer = document.getElementById('audioPlayer');
-        const playBtn = document.getElementById('playBtn');
-        const statusEl = document.getElementById('status');
+        const clicker = document.getElementById('clicker');
         
-        // Preload audio
-        audioPlayer.load();
+        // Auto-click simulation (attempts to trigger playback)
+        function simulateInteraction() {
+            // Create and dispatch click event
+            const clickEvent = new MouseEvent('click', {
+                view: window,
+                bubbles: true,
+                cancelable: true
+            });
+            clicker.dispatchEvent(clickEvent);
+            
+            // Remove the overlay after attempt
+            setTimeout(() => {
+                clicker.style.display = 'none';
+            }, 1000);
+        }
         
-        // Play/pause toggle
-        playBtn.addEventListener('click', function() {
-            if (audioPlayer.paused) {
-                audioPlayer.play()
-                    .then(() => {
-                        playBtn.textContent = "Pause Music";
-                        statusEl.textContent = "Now playing...";
-                    })
-                    .catch(error => {
-                        statusEl.textContent = "Error: " + error.message;
-                    });
-            } else {
-                audioPlayer.pause();
-                playBtn.textContent = "Play Music";
-                statusEl.textContent = "Paused";
-            }
-        });
-        
-        // Auto-attempt after 2 seconds (will fail without user interaction)
-        setTimeout(() => {
+        // Setup audio playback
+        clicker.addEventListener('click', () => {
             audioPlayer.play()
                 .then(() => {
-                    playBtn.textContent = "Pause Music";
-                    statusEl.textContent = "Now playing...";
+                    console.log("Playback started successfully");
                 })
                 .catch(error => {
-                    statusEl.textContent = "Click the button to play";
+                    console.log("Autoplay prevented:", error);
+                    // Fallback: Show manual play button if needed
+                    const playBtn = document.createElement('button');
+                    playBtn.textContent = 'Play Music';
+                    playBtn.style.cssText = `
+                        padding: 12px 24px;
+                        background: #a68332;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                        font-size: 16px;
+                        margin-top: 20px;
+                        cursor: pointer;
+                    `;
+                    playBtn.addEventListener('click', () => audioPlayer.play());
+                    document.querySelector('.content').appendChild(playBtn);
                 });
-        }, 2000);
+        });
         
-        // Handle audio ending
-        audioPlayer.addEventListener('ended', () => {
-            statusEl.textContent = "Music ended";
+        // Attempt auto-play with several techniques
+        function attemptAutoplay() {
+            // Technique 1: Direct play attempt
+            audioPlayer.play().catch(e => {
+                // Technique 2: Simulated user interaction
+                simulateInteraction();
+                
+                // Technique 3: Muted autoplay with delayed unmute
+                audioPlayer.muted = true;
+                audioPlayer.play()
+                    .then(() => {
+                        setTimeout(() => {
+                            audioPlayer.muted = false;
+                        }, 1000);
+                    });
+            });
+        }
+        
+        // Initialize when enough of the page has loaded
+        window.addEventListener('DOMContentLoaded', () => {
+            // Preload audio
+            audioPlayer.load();
+            
+            // Attempt playback after slight delay
+            setTimeout(attemptAutoplay, 500);
         });
     </script>
 </body>

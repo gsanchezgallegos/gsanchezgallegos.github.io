@@ -3,107 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Background Music Player</title>
+    <title>Scroll-Triggered Audio</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f5f9;
+            line-height: 1.6;
+            color: #333;
+        }
+        .section {
+            min-height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            padding: 40px;
             text-align: center;
         }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            max-width: 500px;
+        #intro {
+            background-color: #f0f5f9;
+        }
+        #counter {
+            background-color: #e8f4f8;
+        }
+        #content {
+            background-color: #f9f9f9;
         }
         h1 {
             color: #a68332;
             margin-bottom: 20px;
         }
-        .status {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 5px;
-            background: #f8f9fa;
-            font-style: italic;
+        p {
+            max-width: 600px;
+            margin: 0 auto 20px;
         }
-        .unmute-btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: #a68332;
+        .scroll-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
             color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            display: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            opacity: 1;
+            transition: opacity 0.5s;
+        }
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Wedding Celebration</h1>
-        <p>Background music is playing automatically</p>
-        
-        <!-- Audio Element -->
-        <audio id="audioPlayer" loop muted autoplay>
-            <source src="wide-awake-katy-perry.mp3" type="audio/mpeg">
-            Your browser does not support audio playback.
-        </audio>
-        
-        <div class="status" id="status">Initializing audio...</div>
-        <button class="unmute-btn" id="unmuteBtn">Click to Unmute</button>
-    </div>
+    <section id="intro" class="section">
+        <h1>Welcome to Our Celebration</h1>
+        <p>Scroll down to begin the experience...</p>
+    </section>
+
+    <section id="counter" class="section">
+        <h1>Special Moment Countdown</h1>
+        <p>When this section becomes visible, the audio will play automatically.</p>
+    </section>
+
+    <section id="content" class="section">
+        <h1>Continue Your Journey</h1>
+        <p>The audio should now be playing. Enjoy the experience!</p>
+    </section>
+
+    <div class="scroll-hint" id="scrollHint">↓ Scroll Down ↓</div>
 
     <script>
-        /****/
+        // Audio control variables
         var played = false;
+        var countdownSound = new Audio('wide-awake-katy-perry.mp3');
+        
+        // Hide scroll hint after first scroll
         $(window).scroll(function() {
-          var elemTop = $('#counter').offset().top, 
-          elemHeight = $('#counter').outerHeight(), 
-          windowHeight = $(window).height(),
-          windowScroll = $(this).scrollTop();
-          var countdownSound = new Audio('wide-awake-katy-perry.mp3');
-        
-          if( windowScroll > (elemTop + elemHeight - windowHeight) && played == false) {
-            countdownSound.play();
-            played = true;
-          }
-        });
-        /****/
-        
-        const audio = document.getElementById('audioPlayer');
-        const statusEl = document.getElementById('status');
-        const unmuteBtn = document.getElementById('unmuteBtn');
-        
-        // Try to unmute after 1 second
-        setTimeout(() => {
-            audio.muted = false;
-            statusEl.textContent = "Music should now be playing.";
+            $('#scrollHint').addClass('hidden');
             
-            // Show unmute button if still muted (some browsers block auto-unmute)
-            if(audio.muted) {
-                unmuteBtn.style.display = 'inline-block';
-                statusEl.textContent = "Couldn't auto-unmute. Please click below:";
+            // Check if counter section is in view
+            var elemTop = $('#counter').offset().top;
+            var elemHeight = $('#counter').outerHeight();
+            var windowHeight = $(window).height();
+            var windowScroll = $(this).scrollTop();
+            
+            if (windowScroll > (elemTop + elemHeight - windowHeight - 100) && played == false) {
+                // Try to play audio
+                var playPromise = countdownSound.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(_ => {
+                        // Audio played successfully
+                        played = true;
+                    })
+                    .catch(error => {
+                        // Show manual play button if autoplay fails
+                        $('#counter').append(
+                            '<button id="manualPlay" style="padding:10px 20px;background:#a68332;color:white;border:none;border-radius:5px;margin-top:20px;cursor:pointer;">Click to Play Audio</button>'
+                        );
+                        $('#manualPlay').click(function() {
+                            countdownSound.play();
+                            played = true;
+                            $(this).remove();
+                        });
+                    });
+                }
             }
-        }, 1000);
-        
-        // Manual unmute fallback
-        unmuteBtn.addEventListener('click', () => {
-            audio.muted = false;
-            unmuteBtn.style.display = 'none';
-            statusEl.textContent = "Music is now unmuted!";
         });
-        
-        // Error handling
-        audio.addEventListener('error', () => {
-            statusEl.textContent = "Error loading audio. Please check the file URL.";
+
+        // Preload audio when page loads
+        $(document).ready(function() {
+            countdownSound.load();
+            
+            // iOS requires direct user interaction
+            $('body').one('click touchstart', function() {
+                // This helps iOS devices recognize user interaction
+            });
         });
     </script>
 </body>

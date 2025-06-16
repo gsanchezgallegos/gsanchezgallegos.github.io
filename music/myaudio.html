@@ -16,27 +16,17 @@
     </style>
 </head>
 <body>
-    <audio id="audioPlayer" loop>
-        <source src="wide-awake-katy-perry.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="audioPlayer" loop muted autoplay>
+    <source src="wide-awake-katy-perry.mp3" type="audio/mpeg">
+</audio>
 
-    <!-- Transparent overlay button -->
-    <button id="fakeButton"></button>
-
-    <script>
-        const audio = document.getElementById('audioPlayer');
-        const fakeButton = document.getElementById('fakeButton');
-
-        // Auto-click after 500ms (bypasses some browser restrictions)
-        setTimeout(() => {
-            fakeButton.click();
-            fakeButton.remove();
-        }, 500);
-
-        // Start playback on "click"
-        fakeButton.addEventListener('click', () => {
-            audio.play().catch(e => console.log("Autoplay blocked"));
-        });
-    </script>
+<script>
+    const audio = document.getElementById('audioPlayer');
+    
+    // Unmute after 1 second
+    setTimeout(() => {
+        audio.muted = false;
+    }, 1000);
+</script>
 </body>
 </html>

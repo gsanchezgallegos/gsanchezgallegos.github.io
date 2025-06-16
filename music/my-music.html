@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wide Awake - Katy Perry</title>
+</head>
+<body>
+  <audio id="bg-music" src="wide-awake-katy-perry.mp3" autoplay loop></audio>
+
+  <h1>Now Playing: Wide Awake - Katy Perry</h1>
+  <p>If the music does not start automatically, please click anywhere on the page.</p>
+
+  <script>
+    // Attempt to play on load
+    window.addEventListener('load', () => {
+      const audio = document.getElementById('bg-music');
+      audio.play().catch((err) => {
+        console.warn("Autoplay blocked. Waiting for user interaction...");
+        // Fallback: play on first click
+        document.body.addEventListener('click', () => {
+          audio.play();
+        }, { once: true });
+      });
+    });
+  </script>
+</body>
+</html>

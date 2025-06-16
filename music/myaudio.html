@@ -3,126 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scroll-Triggered Audio</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Wedding Audio Player</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-            color: #333;
-        }
-        .section {
-            min-height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 40px;
-            text-align: center;
-        }
-        #intro {
+            min-height: 100vh;
+            margin: 0;
             background-color: #f0f5f9;
+            background-image: radial-gradient(circle at 10% 20%, rgba(255,255,255,0.8) 0%, transparent 20%);
         }
-        #counter {
-            background-color: #e8f4f8;
+        .player-container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            overflow: hidden;
         }
-        #content {
-            background-color: #f9f9f9;
+        .player-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #a68332, #d4af37, #a68332);
         }
-        h1 {
+        h2 {
             color: #a68332;
-            margin-bottom: 20px;
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 10px;
         }
-        p {
-            max-width: 600px;
-            margin: 0 auto 20px;
-        }
-        .scroll-hint {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.7);
+        #playBtn {
+            background-color: #a68332;
             color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 14px;
-            opacity: 1;
-            transition: opacity 0.5s;
+            border: none;
+            padding: 14px 28px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 25px 0 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(166, 131, 50, 0.3);
         }
-        .hidden {
-            opacity: 0;
-            pointer-events: none;
+        #playBtn:hover {
+            background-color: #b78d3a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(166, 131, 50, 0.4);
+        }
+        .status {
+            margin-top: 20px;
+            color: #6c757d;
+            font-style: italic;
+            min-height: 24px;
+        }
+        .floral {
+            position: absolute;
+            opacity: 0.1;
+            font-size: 3rem;
+            z-index: 0;
+        }
+        .floral-1 {
+            top: 20px;
+            right: 20px;
+            transform: rotate(15deg);
+        }
+        .floral-2 {
+            bottom: 20px;
+            left: 20px;
+            transform: rotate(-15deg);
         }
     </style>
 </head>
 <body>
-    <section id="intro" class="section">
-        <h1>Welcome to Our Celebration</h1>
-        <p>Scroll down to begin the experience...</p>
-    </section>
-
-    <section id="counter" class="section">
-        <h1>Special Moment Countdown</h1>
-        <p>When this section becomes visible, the audio will play automatically.</p>
-    </section>
-
-    <section id="content" class="section">
-        <h1>Continue Your Journey</h1>
-        <p>The audio should now be playing. Enjoy the experience!</p>
-    </section>
-
-    <div class="scroll-hint" id="scrollHint">↓ Scroll Down ↓</div>
+    <div class="player-container">
+        <div class="floral floral-1">❀</div>
+        <div class="floral floral-2">❀</div>
+        
+        <h2>Wedding Music Player</h2>
+        <p>Click below to play our special song</p>
+        
+        <button id="playBtn">Play Music</button>
+        <div class="status" id="status"></div>
+        
+        <!-- Audio element with your Google Drive file -->
+        <audio id="audioPlayer" loop>
+            <source src="https://drive.google.com/uc?export=download&id=1yypAZ18U7_bqi-9xusunzxhUqaz-8I7G" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
 
     <script>
-        // Audio control variables
-        var played = false;
-        var countdownSound = new Audio('wide-awake-katy-perry.mp3');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playBtn = document.getElementById('playBtn');
+        const statusEl = document.getElementById('status');
         
-        // Hide scroll hint after first scroll
-        $(window).scroll(function() {
-            $('#scrollHint').addClass('hidden');
-            
-            // Check if counter section is in view
-            var elemTop = $('#counter').offset().top;
-            var elemHeight = $('#counter').outerHeight();
-            var windowHeight = $(window).height();
-            var windowScroll = $(this).scrollTop();
-            
-            if (windowScroll > (elemTop + elemHeight - windowHeight - 100) && played == false) {
-                // Try to play audio
-                var playPromise = countdownSound.play();
-                
-                if (playPromise !== undefined) {
-                    playPromise.then(_ => {
-                        // Audio played successfully
-                        played = true;
+        // Preload audio
+        audioPlayer.load();
+        
+        // Play/pause toggle
+        playBtn.addEventListener('click', function() {
+            if (audioPlayer.paused) {
+                audioPlayer.play()
+                    .then(() => {
+                        playBtn.textContent = "Pause Music";
+                        statusEl.textContent = "Now playing...";
                     })
                     .catch(error => {
-                        // Show manual play button if autoplay fails
-                        $('#counter').append(
-                            '<button id="manualPlay" style="padding:10px 20px;background:#a68332;color:white;border:none;border-radius:5px;margin-top:20px;cursor:pointer;">Click to Play Audio</button>'
-                        );
-                        $('#manualPlay').click(function() {
-                            countdownSound.play();
-                            played = true;
-                            $(this).remove();
-                        });
+                        statusEl.textContent = "Error: " + error.message;
                     });
-                }
+            } else {
+                audioPlayer.pause();
+                playBtn.textContent = "Play Music";
+                statusEl.textContent = "Paused";
             }
         });
-
-        // Preload audio when page loads
-        $(document).ready(function() {
-            countdownSound.load();
-            
-            // iOS requires direct user interaction
-            $('body').one('click touchstart', function() {
-                // This helps iOS devices recognize user interaction
-            });
+        
+        // Auto-attempt after 2 seconds (will fail without user interaction)
+        setTimeout(() => {
+            audioPlayer.play()
+                .then(() => {
+                    playBtn.textContent = "Pause Music";
+                    statusEl.textContent = "Now playing...";
+                })
+                .catch(error => {
+                    statusEl.textContent = "Click the button to play";
+                });
+        }, 2000);
+        
+        // Handle audio ending
+        audioPlayer.addEventListener('ended', () => {
+            statusEl.textContent = "Music ended";
         });
     </script>
 </body>

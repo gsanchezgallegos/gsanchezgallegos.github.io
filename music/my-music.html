@@ -3,25 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <title>Wide Awake - Katy Perry</title>
+  <style>
+    #play-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      background-color: #ff4081;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      z-index: 9999;
+    }
+
+    #play-button:hover {
+      background-color: #e73370;
+    }
+  </style>
 </head>
 <body>
-  <audio id="bg-music" src="wide-awake-katy-perry.mp3" autoplay loop></audio>
 
-  <h1>Now Playing: Wide Awake - Katy Perry</h1>
-  <p>If the music does not start automatically, please click anywhere on the page.</p>
+  <audio id="bg-music" src="wide-awake-katy-perry.mp3" loop></audio>
+
+  <button id="play-button">▶ Play Music</button>
 
   <script>
-    // Attempt to play on load
-    window.addEventListener('load', () => {
-      const audio = document.getElementById('bg-music');
-      audio.play().catch((err) => {
-        console.warn("Autoplay blocked. Waiting for user interaction...");
-        // Fallback: play on first click
-        document.body.addEventListener('click', () => {
-          audio.play();
-        }, { once: true });
-      });
+    const playBtn = document.getElementById('play-button');
+    const audio = document.getElementById('bg-music');
+
+    playBtn.addEventListener('click', () => {
+      audio.play()
+        .then(() => {
+          playBtn.style.display = 'none'; // Hide after playing
+        })
+        .catch((err) => {
+          console.error("Playback failed:", err);
+          alert("Autoplay is blocked. Please interact with the page.");
+        });
     });
   </script>
+
 </body>
 </html>

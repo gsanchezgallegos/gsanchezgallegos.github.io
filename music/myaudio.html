@@ -62,6 +62,22 @@
     </div>
 
     <script>
+        /****/
+        var played = false;
+        $(window).scroll(function() {
+          var elemTop = $('#counter').offset().top, 
+          elemHeight = $('#counter').outerHeight(), 
+          windowHeight = $(window).height(),
+          windowScroll = $(this).scrollTop();
+          var countdownSound = new Audio('wide-awake-katy-perry.mp3');
+        
+          if( windowScroll > (elemTop + elemHeight - windowHeight) && played == false) {
+            countdownSound.play();
+            played = true;
+          }
+        });
+        /****/
+        
         const audio = document.getElementById('audioPlayer');
         const statusEl = document.getElementById('status');
         const unmuteBtn = document.getElementById('unmuteBtn');

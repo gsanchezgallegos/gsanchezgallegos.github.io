@@ -9,28 +9,55 @@
             margin: 0;
             padding: 0;
             background: transparent;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            overflow: hidden;
         }
-        audio {
-            width: 300px;
+        /* Hide all elements except audio (optional) */
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <audio controls autoplay loop>
+    <!-- Audio element with loop and autoplay -->
+    <audio id="audioPlayer" loop>
         <source src="wide-awake-katy-perry.mp3" type="audio/mp3">
         Your browser does not support the audio element.
     </audio>
 
     <script>
-        // Ensure audio plays even if autoplay is blocked
-        document.addEventListener('click', function() {
-            const audio = document.querySelector('audio');
-            audio.play().catch(e => console.log('Audio play failed:', e));
-        }, { once: true });
+        // Get the audio element
+        const audio = document.getElementById('audioPlayer');
+        
+        // Function to handle audio play with fallbacks
+        function playAudio() {
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    // Autoplay was prevented - show a hidden play button
+                    const btn = document.createElement('button');
+                    btn.textContent = 'Play Audio';
+                    btn.style.position = 'fixed';
+                    btn.style.top = '10px';
+                    btn.style.left = '10px';
+                    btn.style.zIndex = '1000';
+                    btn.onclick = () => {
+                        audio.play();
+                        btn.remove();
+                    };
+                    document.body.appendChild(btn);
+                });
+            }
+        }
+
+        // Try to play immediately when page loads
+        document.addEventListener('DOMContentLoaded', playAudio);
+        
+        // Also try to play when window gains focus (for mobile devices)
+        window.addEventListener('focus', playAudio);
+        
+        // Some browsers require interaction first - this helps when iframe is clicked
+        document.addEventListener('click', playAudio, { once: true });
     </script>
 </body>
 </html>

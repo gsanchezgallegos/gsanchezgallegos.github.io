@@ -1,122 +1,74 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Background Audio</title>
+    <title>Audio Player</title>
     <style>
         body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             margin: 0;
-            padding: 0;
-            background: transparent;
-            overflow: hidden;
-            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        .audio-container {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         #playButton {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            padding: 8px 15px;
-            background: #4CAF50;
+            padding: 12px 24px;
+            font-size: 16px;
+            background-color: #4CAF50;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
-            z-index: 1000;
-            opacity: 0.7;
-            font-size: 12px;
+            margin-top: 20px;
         }
         #playButton:hover {
-            opacity: 1;
-        }
-        .hidden {
-            display: none;
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
-    <!-- Audio element with loop -->
-    <audio id="audioPlayer" loop>
-        <source src="wide-awake-katy-perry.mp3" type="audio/mp3">
-    </audio>
-
-    <!-- Fallback play button (hidden initially) -->
-    <button id="playButton" class="hidden">Play Background Audio</button>
+    <div class="audio-container">
+        <h2>Wedding Music Player</h2>
+        <audio id="audioPlayer" loop>
+            <!-- Replace with your audio file path -->
+            <source src="wide-awake-katy-perry.mp3" type="audio/mpeg"            
+        </audio>
+        <button id="playButton">Play Music</button>
+    </div>
 
     <script>
-        const audio = document.getElementById('audioPlayer');
+        const audioPlayer = document.getElementById('audioPlayer');
         const playButton = document.getElementById('playButton');
-        let audioStarted = false;
-
-        // Try to play audio automatically
-        function attemptAutoplay() {
-            if (audioStarted) return;
-            
-            const playPromise = audio.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    audioStarted = true;
-                }).catch(error => {
-                    showPlayButton();
-                });
+        
+        // Modern browsers require user interaction to play audio
+        playButton.addEventListener('click', () => {
+            if (audioPlayer.paused) {
+                audioPlayer.play()
+                    .then(() => {
+                        playButton.textContent = 'Pause Music';
+                    })
+                    .catch(error => {
+                        console.log('Playback failed:', error);
+                        alert('Please click "Play Music" to start audio');
+                    });
+            } else {
+                audioPlayer.pause();
+                playButton.textContent = 'Play Music';
             }
-        }
-
-        // Show play button when autoplay fails
-        function showPlayButton() {
-            playButton.classList.remove('hidden');
-        }
-
-        // Play audio and hide button
-        function playAudio() {
-            audio.play()
-                .then(() => {
-                    audioStarted = true;
-                    playButton.classList.add('hidden');
-                })
-                .catch(e => {
-                    playButton.textContent = 'Click to Enable Audio';
-                });
-        }
-
-        // Scroll detection
-        let scrollTimeout;
-        function handleScroll() {
-            if (!audioStarted) {
-                attemptAutoplay();
-            }
-            
-            // Clear any existing timeout
-            clearTimeout(scrollTimeout);
-            
-            // Set a new timeout
-            scrollTimeout = setTimeout(() => {
-                if (!audioStarted) {
-                    playButton.classList.remove('hidden');
-                }
-            }, 3000);
-        }
-
-        // Initial setup
-        document.addEventListener('DOMContentLoaded', () => {
-            // Try autoplay immediately
-            attemptAutoplay();
-            
-            // Set up scroll listener
-            window.addEventListener('scroll', handleScroll);
-            window.addEventListener('touchmove', handleScroll); // For mobile
-            
-            // Set up click listener for the button
-            playButton.addEventListener('click', playAudio);
-            
-            // Also try to play when the page gets clicked anywhere
-            document.addEventListener('click', () => {
-                if (!audioStarted) {
-                    attemptAutoplay();
-                }
-            }, { once: true });
         });
+
+        // Optional: Auto-start attempt (may not work due to browser restrictions)
+        window.addEventListener('click', () => {
+            audioPlayer.play().catch(e => console.log('Autoplay blocked:', e));
+        }, { once: true });
     </script>
 </body>
 </html>

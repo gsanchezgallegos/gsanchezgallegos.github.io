@@ -1,1 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Player</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        audio {
+            width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <audio controls autoplay loop>
+        <source src="your-audio-file.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
 
+    <script>
+        // Ensure audio plays even if autoplay is blocked
+        document.addEventListener('click', function() {
+            const audio = document.querySelector('audio');
+            audio.play().catch(e => console.log('Audio play failed:', e));
+        }, { once: true });
+    </script>
+</body>
+</html>

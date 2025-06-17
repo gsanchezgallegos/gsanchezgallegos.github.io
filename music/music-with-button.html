@@ -1,14 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Wedding Audio Player</title>
+    <title>Wedding Music Player</title>
     <style>
-        /* Completely hidden player */
-        #player {
-            display: none;
-        }
+        #player { display: none; }
         
-        /* Beautiful control button */
         #audioControl {
             position: fixed;
             bottom: 20px;
@@ -24,52 +20,20 @@
             font-size: 16px;
             box-shadow: 0 4px 12px rgba(166, 131, 50, 0.3);
             transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
-        
-        #audioControl:hover {
-            background: #b78d3a;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(166, 131, 50, 0.4);
-        }
-        
-        .pulse {
-            animation: pulse 0.5s ease;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
+        #audioControl:hover { background: #b78d3a; }
     </style>
 </head>
 <body>
-    <!-- Hidden YouTube player -->
     <div id="player"></div>
-    
-    <!-- Audio control button -->
-    <button id="audioControl">🔇 Loading Audio...</button>
+    <button id="audioControl">🔇 Muted</button>
 
-    <!-- YouTube API -->
     <script src="https://www.youtube.com/iframe_api"></script>
-    
     <script>
-        // State management
-        const state = {
-            player: null,
-            isMuted: true,
-            isReady: false,
-            userInteracted: false
-        };
-
-        // Initialize player
+        let player;
+        
         function onYouTubeIframeAPIReady() {
-            state.player = new YT.Player('player', {
-                height: '0',
-                width: '0',
+            player = new YT.Player('player', {
                 videoId: '4Fue7LCvmt0',
                 playerVars: {
                     autoplay: 1,
@@ -80,82 +44,24 @@
                     origin: window.location.origin
                 },
                 events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange
+                    'onReady': onPlayerReady
                 }
             });
         }
 
-        // When player is ready
-        function onPlayerReady(event) {
-            state.isReady = true;
-            updateButton();
-            
-            // Attempt unmute after 2 seconds (works in some browsers)
-            setTimeout(() => {
-                if (state.isMuted) {
-                    event.target.unMute();
-                    state.isMuted = false;
-                    updateButton();
+        function onPlayerReady() {
+            document.getElementById('audioControl').onclick = function() {
+                if (player.isMuted()) {
+                    player.unMute();
+                    this.textContent = '🔊 Playing';
+                } else {
+                    player.mute();
+                    this.textContent = '🔇 Muted';
                 }
-            }, 2000);
+                this.classList.add('click-animation');
+                setTimeout(() => this.classList.remove('click-animation'), 300);
+            };
         }
-
-        // Handle player state changes
-        function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.PLAYING && !state.userInteracted) {
-                state.userInteracted = true;
-            }
-            updateButton();
-        }
-
-        // Update button appearance
-        function updateButton() {
-            const btn = document.getElementById('audioControl');
-            if (!state.isReady) {
-                btn.textContent = '🔇 Loading...';
-                return;
-            }
-            
-            if (state.player.getPlayerState() !== YT.PlayerState.PLAYING) {
-                btn.textContent = '▶️ Play Music';
-            } else {
-                btn.textContent = state.isMuted ? '🔇 Muted' : '🔊 Playing';
-            }
-        }
-
-        // Button click handler
-        document.getElementById('audioControl').addEventListener('click', function() {
-            if (!state.isReady) return;
-            
-            // Add visual feedback
-            this.classList.add('pulse');
-            setTimeout(() => this.classList.remove('pulse'), 200);
-            
-            if (state.player.getPlayerState() !== YT.PlayerState.PLAYING) {
-                // Start playback if not playing
-                state.player.playVideo();
-                state.player.unMute();
-                state.isMuted = false;
-            } else {
-                // Toggle mute state if playing
-                state.isMuted = !state.isMuted;
-                state.player.mute(state.isMuted);
-            }
-            
-            updateButton();
-        });
-
-        // Attempt to autoplay on page load
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                if (state.isReady && state.isMuted) {
-                    state.player.unMute();
-                    state.isMuted = false;
-                    updateButton();
-                }
-            }, 3000);
-        });
     </script>
 </body>
 </html>

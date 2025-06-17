@@ -3,7 +3,14 @@
 <head>
     <title>Wedding Music Player</title>
     <style>
-        #player { display: none; }
+        #player-container {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+        }
         
         #audioControl {
             position: fixed;
@@ -19,49 +26,68 @@
             font-family: 'Arial', sans-serif;
             font-size: 16px;
             box-shadow: 0 4px 12px rgba(166, 131, 50, 0.3);
-            transition: all 0.3s ease;
         }
-        #audioControl:hover { background: #b78d3a; }
     </style>
 </head>
 <body>
-    <div id="player"></div>
+    <!-- Tiny hidden player container -->
+    <div id="player-container"></div>
+    
+    <!-- Audio control button -->
     <button id="audioControl">🔇 Muted</button>
 
-    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-        let player;
+        // 1. Create player manually instead of using iframe API
+        const playerContainer = document.getElementById('player-container');
+        const player = document.createElement('iframe');
         
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('player', {
-                videoId: '4Fue7LCvmt0',
-                playerVars: {
-                    autoplay: 1,
-                    loop: 1,
-                    playlist: '4Fue7LCvmt0',
-                    mute: 1,
-                    enablejsapi: 1,
-                    origin: window.location.origin
-                },
-                events: {
-                    'onReady': onPlayerReady
-                }
+        player.id = 'player';
+        player.width = '0';
+        player.height = '0';
+        player.src = 'https://www.youtube.com/embed/4Fue7LCvmt0?autoplay=1&loop=1&playlist=4Fue7LCvmt0&mute=1&enablejsapi=1';
+        player.allow = 'autoplay';
+        player.frameBorder = '0';
+        
+        playerContainer.appendChild(player);
+        
+        // 2. Mute control with reliable state tracking
+        const audioControl = document.getElementById('audioControl');
+        let isMuted = true;
+        
+        // 3. PostMessage communication with YouTube player
+        function sendCommand(command) {
+            player.contentWindow.postMessage(JSON.stringify({
+                event: 'command',
+                func: command.func,
+                args: command.args || []
+            }), '*');
+        }
+        
+        // 4. Toggle mute state
+        function toggleMute() {
+            isMuted = !isMuted;
+            sendCommand({
+                func: isMuted ? 'mute' : 'unMute'
             });
+            audioControl.textContent = isMuted ? '🔇 Muted' : '🔊 Playing';
         }
-
-        function onPlayerReady() {
-            document.getElementById('audioControl').onclick = function() {
-                if (player.isMuted()) {
-                    player.unMute();
-                    this.textContent = '🔊 Playing';
-                } else {
-                    player.mute();
-                    this.textContent = '🔇 Muted';
+        
+        // 5. Initialize when player is ready
+        window.onYouTubeIframeAPIReady = function() {
+            audioControl.onclick = toggleMute;
+            
+            // Try silent unmute after delay
+            setTimeout(() => {
+                if (isMuted) {
+                    toggleMute();
                 }
-                this.classList.add('click-animation');
-                setTimeout(() => this.classList.remove('click-animation'), 300);
-            };
-        }
+            }, 2000);
+        };
+        
+        // 6. Inject YouTube API script
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(tag);
     </script>
 </body>
 </html>

@@ -130,7 +130,7 @@
             
             // Add visual feedback
             this.classList.add('pulse');
-            setTimeout(() => this.classList.remove('pulse'), 500);
+            setTimeout(() => this.classList.remove('pulse'), 200);
             
             if (state.player.getPlayerState() !== YT.PlayerState.PLAYING) {
                 // Start playback if not playing

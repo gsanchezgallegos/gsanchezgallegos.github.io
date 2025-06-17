@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Music Player</title>
+    <title>Reproductor de Música para Boda</title>
     <style>
         body {
             margin: 0;
             padding: 0;
             height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             background-color: #f0f5f9;
             font-family: 'Arial', sans-serif;
         }
@@ -40,20 +37,20 @@
         
         #audioControl:hover {
             background: #b78d3a;
-            transform: translateY(-2px);
+            transform: translateX(-50%) translateY(-2px); /* Ajuste para hover */
             box-shadow: 0 6px 16px rgba(166, 131, 50, 0.4);
         }
     </style>
 </head>
 <body>
-    <!-- Hidden YouTube player container -->
+    <!-- Reproductor de YouTube oculto -->
     <div id="player-container"></div>
     
-    <!-- Centered audio control button -->
+    <!-- Botón en centro superior -->
     <button id="audioControl">🔇 Silenciado</button>
 
     <script>
-        // 1. Create and configure the YouTube player
+        // (El JavaScript permanece EXACTAMENTE igual)
         const playerContainer = document.getElementById('player-container');
         const player = document.createElement('iframe');
         
@@ -65,11 +62,9 @@
         player.frameBorder = '0';
         playerContainer.appendChild(player);
         
-        // 2. Audio control setup
         const audioControl = document.getElementById('audioControl');
         let isMuted = true;
         
-        // 3. Function to send commands to YouTube player
         function sendCommand(command) {
             player.contentWindow.postMessage(JSON.stringify({
                 event: 'command',
@@ -78,7 +73,6 @@
             }), '*');
         }
         
-        // 4. Toggle mute function
         function toggleMute() {
             isMuted = !isMuted;
             sendCommand({
@@ -86,18 +80,17 @@
             });
             audioControl.textContent = isMuted ? '🔇 Silenciado' : '🔊 Reproduciendo';
             
-            // Add click animation
-            audioControl.style.transform = 'scale(0.95)';
+            audioControl.style.transform = 'translateX(-50%) scale(0.95)';
             setTimeout(() => {
-                audioControl.style.transform = isMuted ? 'scale(1)' : 'scale(1.05)';
+                audioControl.style.transform = isMuted 
+                    ? 'translateX(-50%) scale(1)' 
+                    : 'translateX(-50%) scale(1.05)';
             }, 100);
         }
         
-        // 5. Initialize when ready
         window.onYouTubeIframeAPIReady = function() {
             audioControl.onclick = toggleMute;
             
-            // Attempt silent unmute after delay
             setTimeout(() => {
                 if (isMuted) {
                     toggleMute();
@@ -105,7 +98,6 @@
             }, 1500);
         };
         
-        // 6. Load YouTube API
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         document.head.appendChild(tag);

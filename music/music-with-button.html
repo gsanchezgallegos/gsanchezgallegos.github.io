@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Wedding Music Player</title>
+    <title>Music Player</title>
     <style>
         body {
             margin: 0;
@@ -46,7 +46,7 @@
     <div id="player-container"></div>
     
     <!-- Centered audio control button -->
-    <button id="audioControl">🔇 Muted</button>
+    <button id="audioControl">🔇 Silenciado</button>
 
     <script>
         // 1. Create and configure the YouTube player
@@ -80,7 +80,7 @@
             sendCommand({
                 func: isMuted ? 'mute' : 'unMute'
             });
-            audioControl.textContent = isMuted ? '🔇 Muted' : '🔊 Playing';
+            audioControl.textContent = isMuted ? '🔇 Silenciado' : '🔊 Reproduciendo';
             
             // Add click animation
             audioControl.style.transform = 'scale(0.95)';

@@ -3,143 +3,132 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!--<title>Cuenta Regresiva Boda</title>-->
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
+    /* Base styles for full responsiveness */
+    html, body {
       margin: 0;
       padding: 0;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
+      font-family: 'Arial', sans-serif;
+      overflow: hidden; /* Prevent scrolling in iframe */
+    }
+    
+    #container {
+      width: 100%;
+      height: 100%;
       background-color: #f0f5f9;
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
+      align-items: center;
+      box-sizing: border-box;
+      padding: 20px;
     }
-
-    .container {
+    
+    .content-box {
       width: 100%;
-      max-width: 800px;
-      background-color: #eff5f9;
+      max-width: 600px;
+      background: white;
       border-radius: 15px;
-      /*box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);*/
-      /*padding: 40px*/
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      padding: 5%; /* Percentage-based padding */
+      box-sizing: border-box;
       text-align: center;
     }
-
-    .header {
-      margin-bottom: 30px;
-    }
-
+    
+    /* Responsive typography */
     .title {
+      font-size: clamp(24px, 5vw, 32px);
       color: #333;
-      font-size: 32px;
-      font-weight: 600;
-      margin-bottom: 10px;
+      margin-bottom: 2vh;
     }
-
+    
     .subtitle {
+      font-size: clamp(14px, 3vw, 18px);
       color: #6c757d;
-      font-style: italic;
+      margin-bottom: 4vh;
     }
-
+    
+    /* Fluid countdown */
     .countdown {
       display: flex;
       justify-content: center;
-      gap: 20px;
-      margin-bottom: 40px;
+      gap: 2vw;
+      margin-bottom: 4vh;
+      flex-wrap: wrap;
     }
-
+    
     .countdown-item {
-      background-color: #f9f9f9;
-      padding: 25px 20px;
-      border-radius: 10px;
       flex: 1;
-      text-align: center;
-      box-shadow: 0 3px 8px rgba(166, 131, 50, 0.1);
-      border: 1px solid rgba(166, 131, 50, 0.1);
+      min-width: 80px;
+      padding: 2vh 1vw;
+      background: #f9f9f9;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(166,131,50,0.1);
     }
-
+    
     .countdown-number {
-      font-size: 60px;
-      margin-bottom: 10px;
+      font-size: clamp(36px, 8vw, 60px);
       color: #a68332;
       font-weight: bold;
+      line-height: 1;
+      margin-bottom: 1vh;
     }
-
+    
     .countdown-label {
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
+      font-size: clamp(12px, 2.5vw, 14px);
       color: #6c757d;
-      font-weight: 500;
-      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
-
+    
+    /* Audio button */
     #audioControl {
-      padding: 15px 40px;
+      width: 80%;
+      max-width: 300px;
+      padding: 2vh 4vw;
       background: #a68332;
       color: white;
       border: none;
       border-radius: 50px;
+      font-size: clamp(16px, 4vw, 18px);
       cursor: pointer;
-      font-size: 18px;
-      box-shadow: 0 4px 12px rgba(166, 131, 50, 0.3);
-      transition: all 0.3s ease;
-      margin-top: 20px;
+      margin: 2vh auto 0;
+      box-shadow: 0 4px 12px rgba(166,131,50,0.3);
+      transition: all 0.3s;
     }
-
+    
     #audioControl:hover {
       background: #b78d3a;
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(166, 131, 50, 0.4);
-    }
-
-    @media (max-width: 600px) {
-      .container {
-        padding: 25px;
-        border-radius: 0;
-      }
-      
-      .countdown {
-        flex-direction: column;
-        gap: 15px;
-      }
-      
-      .countdown-item {
-        padding: 20px 15px;
-      }
-
-      .countdown-number {
-        font-size: 40px;
-      }
-
-      .title {
-        font-size: 26px;
-      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-    
+  <div id="container">
+    <div class="content-box">
+      <h1 class="title">Nuestra Boda</h1>
+      <p class="subtitle">26 de Julio, 2025 • 5:00 PM</p>
+      
+      <div class="countdown">
+        <div class="countdown-item">
+          <div class="countdown-number" id="days">00</div>
+          <div class="countdown-label">Días</div>
+        </div>
+        <div class="countdown-item">
+          <div class="countdown-number" id="hours">00</div>
+          <div class="countdown-label">Horas</div>
+        </div>
+        <div class="countdown-item">
+          <div class="countdown-number" id="minutes">00</div>
+          <div class="countdown-label">Minutos</div>
+        </div>
+      </div>
+      
+      <button id="audioControl">🔇 Silenciado</button>
     </div>
-
-    <div class="countdown">
-      <div class="countdown-item">
-        <div class="countdown-number" id="days">00</div>
-        <div class="countdown-label">Días</div>
-      </div>
-      <div class="countdown-item">
-        <div class="countdown-number" id="hours">00</div>
-        <div class="countdown-label">Horas</div>
-      </div>
-      <div class="countdown-item">
-        <div class="countdown-number" id="minutes">00</div>
-        <div class="countdown-label">Minutos</div>
-      </div>
-    </div>
-
-    <button id="audioControl">🔇 Silenciado</button>
   </div>
 
   <!-- Hidden YouTube player -->
@@ -199,21 +188,13 @@
         func: isMuted ? 'mute' : 'unMute'
       });
       audioControl.textContent = isMuted ? '🔇 Silenciado' : '🔊 Reproduciendo';
-      
-      audioControl.style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        audioControl.style.transform = isMuted ? 'scale(1)' : 'scale(1.05)';
-      }, 100);
+      audioControl.classList.add('pulse');
+      setTimeout(() => audioControl.classList.remove('pulse'), 300);
     }
     
     window.onYouTubeIframeAPIReady = function() {
       audioControl.onclick = toggleMute;
-      
-      setTimeout(() => {
-        if (isMuted) {
-          toggleMute();
-        }
-      }, 1500);
+      setTimeout(() => isMuted && toggleMute(), 1500);
     };
     
     const tag = document.createElement('script');

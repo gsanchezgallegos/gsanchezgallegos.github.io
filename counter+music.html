@@ -1,217 +1,236 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cuenta Regresiva Boda</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      background-color: #f0f5f9;
-      font-family: 'Arial', sans-serif;
-      overflow: hidden;
-    }
-    
-    #container {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    
-    .content-box {
-      width: 100%;
-      max-width: 600px;
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      padding: 60px 40px 40px;
-      box-sizing: border-box;
-      text-align: center;
-      position: relative;
-    }
-    
-    .countdown {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-    
-    .countdown-item {
-      flex: 1;
-      min-width: 80px;
-      padding: 20px 15px;
-      background: #f9f9f9;
-      border-radius: 10px;
-      box-shadow: 0 3px 8px rgba(166,131,50,0.1);
-      border: 1px solid rgba(166,131,50,0.1);
-    }
-    
-    .countdown-number {
-      font-size: clamp(36px, 8vw, 60px);
-      color: #a68332;
-      font-weight: bold;
-      line-height: 1;
-      margin-bottom: 5px;
-    }
-    
-    .countdown-label {
-      font-size: clamp(12px, 2.5vw, 14px);
-      color: #6c757d;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    
-    #audioControl {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 12px 24px;
-      background: #a68332;
-      color: white;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      font-size: clamp(14px, 3vw, 18px);
-      box-shadow: 0 4px 12px rgba(166,131,50,0.3);
-      transition: all 0.3s ease;
-      z-index: 1000;
-      white-space: nowrap;
-    }
-    
-    #audioControl:hover {
-      background: #b78d3a;
-      transform: translateX(-50%) translateY(-2px);
-      box-shadow: 0 6px 16px rgba(166,131,50,0.4);
-    }
-    
-    @media (max-width: 600px) {
-      .content-box {
-        padding: 60px 20px 40px;
-      }
-      
-      .countdown {
-        flex-direction: column;
-        gap: 15px;
-      }
-      
-      #audioControl {
-        top: 10px;
-        padding: 10px 20px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div id="container">
-    <div class="content-box">
-      <button id="audioControl">🔇 Silenciado</button>
-      
-      <div class="countdown">
-        <div class="countdown-item">
-          <div class="countdown-number" id="days">00</div>
-          <div class="countdown-label">Días</div>
-        </div>
-        <div class="countdown-item">
-          <div class="countdown-number" id="hours">00</div>
-          <div class="countdown-label">Horas</div>
-        </div>
-        <div class="countdown-item">
-          <div class="countdown-number" id="minutes">00</div>
-          <div class="countdown-label">Minutos</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Hidden YouTube player -->
-  <div id="player-container" style="display:none;"></div>
-
-  <script>
-    // Countdown functionality
-    const targetDate = new Date(2025, 6, 26, 17, 0, 0);
-
-    function updateCountdown() {
-      const now = new Date();
-      const diff = targetDate - now;
-
-      if (diff <= 0) {
-        document.querySelector('.countdown').innerHTML = '<div style="font-size:24px;color:#a68332">¡El evento ha comenzado!</div>';
-        return;
-      }
-
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-      document.getElementById('days').textContent = days.toString().padStart(2, '0');
-      document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
-      document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
-    }
-
-    updateCountdown();
-    setInterval(updateCountdown, 60000);
-
-    // Audio player functionality
-    const playerContainer = document.getElementById('player-container');
-    const player = document.createElement('iframe');
-    const audioControl = document.getElementById('audioControl');
-    let isMuted = true;
-    
-    player.id = 'player';
-    player.width = '0';
-    player.height = '0';
-    player.src = 'https://www.youtube.com/embed/4Fue7LCvmt0?autoplay=1&loop=1&playlist=4Fue7LCvmt0&mute=1&enablejsapi=1';
-    player.allow = 'autoplay';
-    player.frameBorder = '0';
-    playerContainer.appendChild(player);
-    
-    function sendCommand(command) {
-      player.contentWindow.postMessage(JSON.stringify({
-        event: 'command',
-        func: command.func,
-        args: command.args || []
-      }), '*');
-    }
-    
-    function toggleMute() {
-      isMuted = !isMuted;
-      sendCommand({
-        func: isMuted ? 'mute' : 'unMute'
-      });
-      audioControl.textContent = isMuted ? '🔇 Silenciado' : '🔊 Reproduciendo';
-      
-      // Pulse animation while maintaining position
-      audioControl.style.transform = 'translateX(-50%) scale(0.95)';
-      setTimeout(() => {
-        audioControl.style.transform = isMuted 
-          ? 'translateX(-50%) scale(1)' 
-          : 'translateX(-50%) scale(1.05)';
-      }, 100);
-    }
-    
-    window.onYouTubeIframeAPIReady = function() {
-      audioControl.onclick = toggleMute;
-      
-      // Attempt to unmute after delay
-      setTimeout(() => {
-        if (isMuted) {
-          toggleMute();
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://fonts.googleapis.com/css?family=Open Sans' rel='stylesheet'>
+    <title>Reproductor de Música para Boda</title>
+    <style>
+        body {
+            margin: 0;
+            /*padding: 0;*/
+            /*height: 100vh;*/
+            background-color: #f0f5f9;
+            font-family: 'Open Sans', sans-serif;
         }
-      }, 3000);
-    };
+
+        #player-container {
+            position: absolute;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+        }
+
+        #audioControl {
+            position: relative;
+            /*top: 10%;*/
+            /* Posición desde la parte superior */
+            left: 50%;
+            margin-bottom: 4%;
+            /* Centrado horizontal */
+            transform: translateX(-50%);
+            /* Ajuste fino para centrar */
+            padding: 15px 30px;
+            background: #a68332;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(166, 131, 50, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        #audioControl:hover {
+            background: #b78d3a;
+            transform: translateX(-50%) translateY(-2px);
+            /* Ajuste para hover */
+            box-shadow: 0 6px 16px rgba(166, 131, 50, 0.4);
+        }
+
+        /*Diseño para el contador*/
+        .countdown-container {
+            text-align: center;
+            /*width: 100%;*/
+            max-width: 600px;
+            margin: 0 auto;
+            /*padding: 25px;*/
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .countdown-title {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .countdown-item {
+            background-color: #ffffff;
+            padding: 18px 15px;
+            border-radius: 10px;
+            flex: 1;
+            /* Distribuye equitativamente el ancho */
+            text-align: center;
+            box-shadow: 0 3px 8px rgba(166, 131, 50, 0.15);
+            border: 1px solid rgba(166, 131, 50, 0.2);
+        }
+
+        .countdown-number {
+            font-size: 100px;
+            margin-bottom: 8px;
+            color: #a68332;
+            text-shadow: 0 2px 4px rgba(166, 131, 50, 0.1);
+        }
+
+        .countdown-label {
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .event-time {
+            margin-top: 20px;
+            color: #5f6368;
+            font-style: italic;
+        }
+
+        @media (max-width: 600px) {
+            .countdown-item {
+                padding: 10px 5px;
+            }
+
+            .countdown-number {
+                font-size: 30px;
+            }
+
+            .countdown-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+   
+    <!-- Reproductor de YouTube oculto -->
+    <div id="player-container"></div>
+
+    <!-- Botón en centro superior -->
+    <button id="audioControl">🔇 Silenciado</button>
+
+    <script>
+        // (El JavaScript permanece EXACTAMENTE igual)
+        const playerContainer = document.getElementById('player-container');
+        const player = document.createElement('iframe');
+
+        player.id = 'player';
+        player.width = '0';
+        player.height = '0';
+        player.src = 'https://www.youtube.com/embed/4Fue7LCvmt0?autoplay=1&loop=1&playlist=4Fue7LCvmt0&mute=1&enablejsapi=1';
+        player.allow = 'autoplay';
+        player.frameBorder = '0';
+        playerContainer.appendChild(player);
+
+        const audioControl = document.getElementById('audioControl');
+        let isMuted = true;
+
+        function sendCommand(command) {
+            player.contentWindow.postMessage(JSON.stringify({
+                event: 'command',
+                func: command.func,
+                args: command.args || []
+            }), '*');
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            sendCommand({
+                func: isMuted ? 'mute' : 'unMute'
+            });
+            audioControl.textContent = isMuted ? '🔇 Silenciado' : '🔊 Reproduciendo';
+
+            audioControl.style.transform = 'translateX(-50%) scale(0.95)';
+            setTimeout(() => {
+                audioControl.style.transform = isMuted
+                    ? 'translateX(-50%) scale(1)'
+                    : 'translateX(-50%) scale(1.05)';
+            }, 100);
+        }
+
+        window.onYouTubeIframeAPIReady = function () {
+            audioControl.onclick = toggleMute;
+
+            setTimeout(() => {
+                if (isMuted) {
+                    toggleMute();
+                }
+            }, 1500);
+        };
+
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(tag);
+    </script>
     
-    const tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    document.head.appendChild(tag);
-  </script>
+     <div class="countdown-container">
+        <!--<div class="countdown-title">Cuenta regresiva al 26 de julio de 2025, 5:00 PM</div>-->
+        <div class="countdown">
+            <div class="countdown-item">
+                <div class="countdown-number" id="days">00</div>
+                <div class="countdown-label">Días</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="hours">00</div>
+                <div class="countdown-label">Horas</div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-number" id="minutes">00</div>
+                <div class="countdown-label">Minutos</div>
+            </div>
+        </div>
+        <!--<div class="event-time">Evento programado para el 26 de julio de 2025 a las 5:00 PM</div>-->
+    </div>
+
+    <script>
+        const targetDate = new Date(2025, 6, 26, 17, 0, 0);
+
+        function updateCountdown() {
+            const now = new Date();
+            const diff = targetDate - now;
+
+            if (diff <= 0) {
+                document.querySelector('.countdown-title').textContent = "¡El evento ha comenzado!";
+                document.querySelector('.countdown').style.display = 'none';
+                document.querySelector('.event-time').style.display = 'none';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+            document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 60000);
+    </script>
 </body>
+
 </html>
